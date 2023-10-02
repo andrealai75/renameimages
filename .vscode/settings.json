@@ -1,0 +1,7 @@
+{
+  "python.pythonPath": "C:\\Users\\andrealai\\AppData\\Local\\Microsoft\\WindowsApps\\python3.11.exe",
+  "python.analysis.extraPaths": [
+    "./renameimages",
+    "./src"
+  ]
+}
