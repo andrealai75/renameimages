@@ -14,8 +14,8 @@ def rename():
     index = 0
     for image in folder.get_images():
       index += 1
-      image.extract_info()
-      new_name = image.get_datetime_formatted() + "_" + \
+      print(image)
+      new_name = image.get_reference_datetime() + "_" + \
         os.path.basename(folder.get_path()) + "_" + \
           "[" + str(index).zfill(3) + "].jpg"
-      print(image.get_file_name() + "\n\t to " + new_name)
+      print("\t - New Name: " + new_name)

@@ -5,23 +5,22 @@ from datetime import datetime
 
 from os.path import dirname, join, abspath
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
-from renameimages.string_date import StringDate
 
 class Img:
   def __init__(self, current_name):
     self.current_name = current_name
-    self.date_taken = ""
-    self.date_filename = ""
-    self.file_created = ""
-    self.datetime_formatted = ""
+    self.date_taken = self.get_date_taken_datetime()
+    self.date_filename = self.extract_data_filename()
+    self.file_created = self.get_file_created()
+    self.reference_datetime = self.get_datetime_formatted()
 
-  def get_file_name(self):
-    return os.path.basename(self.current_name)
+  def get_current_name(self):
+    return self.current_name
 
-  def get_datetime_formatted(self):
-    return self.datetime_formatted
+  def get_reference_datetime(self):
+    return self.reference_datetime
 
-  def get_date_taken(self):
+  def get_date_taken_str(self):
     image = Image.open(self.current_name)
     exifdata = image.getexif()
     for tag_id in exifdata:
@@ -29,54 +28,43 @@ class Img:
       if tag == "DateTime":
         return exifdata.get(tag_id)
 
-  def extract_data_taken(self):
-    full_text = self.get_date_taken()
-    if full_text:
-      date = StringDate( \
-        full_text[2:4], full_text[5:7], full_text[8:10], \
-          full_text[11:13], full_text[14:16], full_text[17:19])
-      if date.is_a_date():
-        self.date_taken = str(date)
+  def get_date_taken_datetime(self):
+    try:
+      full_text = self.get_date_taken_str()
+      return datetime.strptime(full_text, '%Y:%m:%d %H:%M:%S')
+    except:
+      return None
 
   def extract_data_filename(self):
-    file = os.path.basename(self.current_name)
-    date = StringDate( \
-      file[2:4], file[4:6], file[6:8], \
-        file[9:11], file[11:13], file[13:15])
-    if date.is_a_date():
-      self.date_filename = str(date)
+    try:
+      file = os.path.basename(self.current_name)
+      data_substring = file[0:15]
+      return datetime.strptime(data_substring, '%Y%m%d_%H%M%S')
+    except:
+      return None
 
   def get_file_created(self):
     timestamp = os.path.getmtime(self.current_name)
-    file_created = datetime.fromtimestamp(timestamp, tz=None)
-    return str(file_created)
+    return datetime.fromtimestamp(timestamp, tz=None)
 
   def extract_file_created(self):
     full_text = self.get_file_created()
-    if full_text:
-      date = StringDate( \
-        full_text[2:4], full_text[5:7], full_text[8:10], \
-          full_text[11:13], full_text[14:16], full_text[17:19])
-      if date.is_a_date():
-        self.file_created = str(date)
-  
-  def set_datetime_formatted(self):
-    if self.date_taken:
-      self.datetime_formatted = self.date_taken
-    elif self.date_filename:
-      self.datetime_formatted = self.date_filename
-    else:
-      self.datetime_formatted = self.file_created
+    return datetime.fromtimestamp(full_text, tz=None)
 
-  def extract_info(self):
-    self.extract_data_taken()
-    self.extract_data_filename()
-    self.extract_file_created()
-    self.set_datetime_formatted()
+  def datetime_to_str(self, datatime):
+    return datatime.strftime('%y-%m-%d_%H%M%S')
+
+  def get_datetime_formatted(self):
+    if self.date_taken is not None:
+      return self.datetime_to_str(self.date_taken)
+    elif self.date_filename is not None:
+      return self.datetime_to_str(self.date_filename)
+    else:
+      return self.datetime_to_str(self.file_created)
 
   def __str__(self) -> str:
-      return self.current_name + \
-          "\n\t - Data Taken: " + self.date_taken + \
-            "\n\t - Data Filename: " + self.date_filename + \
-              "\n\t - File Created: " + self.file_created  + \
-                "\n\t - File Created: " + self.datetime_formatted
+    return self.current_name + \
+      "\n\t - Current Name: " + os.path.basename(self.current_name) + \
+        "\n\t - Data Taken: " + str(self.date_taken) + \
+          "\n\t - Data Filename: " + str(self.date_filename) + \
+            "\n\t - File Created: " + str(self.file_created)
