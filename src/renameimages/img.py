@@ -2,6 +2,7 @@ import os, sys
 from PIL import Image
 from PIL.ExifTags import TAGS
 from datetime import datetime
+import logging
 
 from os.path import dirname, join, abspath
 sys.path.insert(0, abspath(join(dirname(__file__), '..')))
@@ -14,8 +15,8 @@ class Img:
     self.file_created = self.get_file_created()
     self.reference_datetime = self.get_datetime_formatted()
 
-  def get_current_name(self):
-    return self.current_name
+  def get_image_flename(self):
+    return os.path.basename(self.current_name)
 
   def get_reference_datetime(self):
     return self.reference_datetime
@@ -33,14 +34,17 @@ class Img:
       full_text = self.get_date_taken_str()
       return datetime.strptime(full_text, '%Y:%m:%d %H:%M:%S')
     except:
+      logging.warning(self.get_image_flename() + " - Missing Data Taken")
       return None
 
   def extract_data_filename(self):
     try:
-      file = os.path.basename(self.current_name)
-      data_substring = file[0:15]
+      file = self.get_image_flename()
+      data_substring = file[1:15]
       return datetime.strptime(data_substring, '%Y%m%d_%H%M%S')
     except:
+      if self.date_taken is None:
+        logging.warning(self.get_image_flename() + " - Filename datatime pattern unknown")
       return None
 
   def get_file_created(self):

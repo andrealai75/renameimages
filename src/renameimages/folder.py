@@ -13,6 +13,9 @@ class Folder:
   def get_path(self) -> str:
     return self.path
 
+  def name(self):
+    return os.path.basename(self.path)
+
   def get_subfolders(self):
     return self.subfolders
 
