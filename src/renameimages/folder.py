@@ -29,9 +29,10 @@ class Folder:
         self.subfolders.append(Folder(full_path))
 
   def load_images(self):
+    print('INFO - processing folder: ' + self.path)
     for item in os.listdir(self.path):
       full_path = self.path + "\\" + item
-      if os.path.isfile(full_path) and os.path.splitext(full_path)[1] == ".jpg":
+      if os.path.isfile(full_path) and os.path.splitext(full_path)[1].lower() == ".jpg":
         self.images.append(Img(full_path))
 
   def __str__(self) -> str:
