@@ -21,13 +21,14 @@ class Img:
   def get_reference_datetime(self):
     return self.reference_datetime
 
-  def get_date_taken_str(self):
+  def get_all_tags(self):
     image = Image.open(self.current_name)
-    exifdata = image.getexif()
-    for tag_id in exifdata:
-      tag = TAGS.get(tag_id, tag_id)
-      if tag == "DateTime":
-        return exifdata.get(tag_id)
+    return { TAGS[k]: v for k, v in image._getexif().items() if k in TAGS }
+  
+  def get_date_taken_str(self):
+    tags = self.get_all_tags()
+    if 'DateTimeOriginal' in tags:
+      return tags['DateTimeOriginal']
 
   def get_date_taken_datetime(self):
     try:
